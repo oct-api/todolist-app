@@ -2,26 +2,45 @@
 
 import sys
 import requests
+import argparse
 
-if len(sys.argv) == 1:
-    r = requests.get("http://localhost:8888/api/github.famz/todolist/todo")
+API_URL = "http://localhost:8888/api/github.famz/todolist/todo"
+
+def list_tasks(args):
+    r = requests.get(API_URL)
     print("\n".join(["- %s" % x['subject'] for x in r.json()]))
-elif sys.argv[1] == '-c':
-    completing = set(sys.argv[2:])
-    r = requests.get("http://localhost:8888/api/github.famz/todolist/todo")
+
+def delete_tasks(args):
+    completing = set(args.task)
+    r = requests.get(API_URL)
     for x in r.json():
         pk = x['pk']
         if x['subject'] in completing:
             data = {
                 "pk": x['pk'],
             }
-            r = requests.delete("http://localhost:8888/api/github.famz/todolist/todo",
-                                json=data)
-else:
-    for item in sys.argv[1:]:
+            r = requests.delete(API_URL, json=data)
+
+def create_tasks(args):
+    for item in args.task:
         data = {
             "subject": item,
         }
-        r = requests.post("http://localhost:8888/api/github.famz/todolist/todo",
-                          json=data)
-        print(r)
+        r = requests.post(API_URL, json=data)
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--complete", "-c", action="store_true", help="complete tasks")
+    parser.add_argument("task", nargs="*", help="tasks to operate")
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    if args.complete:
+        delete_tasks(args)
+    elif args.task:
+        create_tasks(args)
+    else:
+        list_tasks(args)
+
+main()
