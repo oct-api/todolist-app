@@ -8,6 +8,9 @@ models:
       - name: subject
         type: string
         description: Todo item subject
+      - name: description
+        type: string
+        description: Todo item description
 api:
   endpoints:
     - name: todo
