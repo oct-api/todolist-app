@@ -12,9 +12,13 @@ models:
       - name: description
         type: string
         description: Todo item description
+    visibility_scope: owner
 api:
   endpoints:
     - name: todo
       path: /todo
       type: model
       model: TodoItem
+      access:
+        - role: user
+          action: allow
