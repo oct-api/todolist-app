@@ -6,31 +6,45 @@ import argparse
 
 API_URL = "http://localhost:8888/api/github.famz/todolist/todo"
 
+def check_response(r):
+    if r.status_code != 200:
+        raise Exception("Request failed with status %d" % r.status_code)
+
+def make_headers(args):
+    return {
+        'Authorization': 'token ' + args.token,
+    }
+
 def list_tasks(args):
-    r = requests.get(API_URL)
+    r = requests.get(API_URL, headers=make_headers(args))
+    check_response(r)
     print("\n".join(["- %s" % x['subject'] for x in r.json()]))
 
 def delete_tasks(args):
     completing = set(args.task)
-    r = requests.get(API_URL)
+    r = requests.get(API_URL, headers=make_headers(args))
+    check_response(r)
     for x in r.json():
         pk = x['pk']
         if x['subject'] in completing:
             data = {
                 "pk": x['pk'],
             }
-            r = requests.delete(API_URL, json=data)
+            r = requests.delete(API_URL, json=data, headers=make_headers(args))
+            check_response(r)
 
 def create_tasks(args):
     for item in args.task:
         data = {
             "subject": item,
         }
-        r = requests.post(API_URL, json=data)
+        r = requests.post(API_URL, json=data, headers=make_headers(args))
+        check_response(r)
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--complete", "-c", action="store_true", help="complete tasks")
+    parser.add_argument("--token", "-t", type=str, default='', help="API access token")
     parser.add_argument("task", nargs="*", help="tasks to operate")
     return parser.parse_args()
 
