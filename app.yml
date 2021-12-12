@@ -9,7 +9,6 @@ models:
         type: string
         description: Todo item subject
 api:
-  default_access: allow
   endpoints:
     - name: todo
       path: /todo
