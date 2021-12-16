@@ -8,9 +8,13 @@ models:
       - name: subject
         type: string
         description: Todo item subject
+    visibility_scope: owner
 api:
   endpoints:
     - name: todo
       path: /todo
       type: model
       model: TodoItem
+      access:
+        - role: user
+          action: allow
